@@ -1,5 +1,6 @@
 class App < Sinatra::Base
 	enable :sessions
+
 	get '/' do
 		"Hello, Grillkorv!"
 
@@ -9,7 +10,6 @@ class App < Sinatra::Base
          
 
 	post '/login' do
-
 		db = SQLite3::Database.new("./db/database.sqlite") 
 		username = params["username"] 
 		password = params["password"]
@@ -18,10 +18,11 @@ class App < Sinatra::Base
 
 		if account_password == password
 			result = db.execute("SELECT id FROM users WHERE username=?", [username]) 
-			session[:id] = accounts[0][0] 
-			session[:username] = accounts[0][1]
+			session[:id] = db.execute("SELECT id, username FROM users WHERE username=? AND password=?", [accounts[0][1], account_password])
+			p session[:id]
 			session[:login] = true 
 			session[:user] = accounts
+			redirect("/users/#{session[:id][0][0]}")
 		elsif password == nil
 			redirect("/error")
 		else
@@ -32,8 +33,10 @@ class App < Sinatra::Base
 	end
 
 	get '/users/:id' do
-		peter = params[:id]
-		slim(:login, locals:{session:session})
+		db = SQLite3::Database.new('./db/database.sqlite')
+		name = session[:id][0][1]
+		user = db.execute("SELECT username FROM users WHERE id=?", [params[:id]])
+		slim(:login, locals:{session:session, user:user[0][0]})
 	end
 
 	get '/register' do
@@ -46,9 +49,10 @@ class App < Sinatra::Base
 		username = params["username"]
 		password = params["password"]
 		confirm = params["password2"]
+		number = params["number"] 
 		if confirm == password
 				password_encrypted = BCrypt::Password.create(password)
-				db.execute("INSERT INTO users('username' , 'password') VALUES(? , ?)", [username,password_encrypted])
+				db.execute("INSERT INTO users (username, password, number) VALUES(?,?,?)", [username, password_encrypted, number])
 				redirect('/signup_successful')
 
 				session[:message] = "Username is not available"
@@ -59,10 +63,24 @@ class App < Sinatra::Base
 		end
 	end
 
-	post '/logout' do 
-		session[:login] = false
-		session[:user] = nil
+	post '/back' do 
+		session[:message] = nil
 		redirect('/')
+	end
+
+	post '/add-friend' do
+
+	end
+
+
+	post '/logout' do 
+		if session[:login] == true
+			session[:id] = nil
+			session[:login] = false
+			redirect('/')
+		else 
+			redirect('/')
+		end
 	end
 
 	get '/signup_successful' do
