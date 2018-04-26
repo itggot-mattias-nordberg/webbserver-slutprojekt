@@ -19,7 +19,6 @@ class App < Sinatra::Base
 		if account_password == password
 			result = db.execute("SELECT id FROM users WHERE username=?", [username]) 
 			session[:id] = db.execute("SELECT id, username FROM users WHERE username=? AND password=?", [accounts[0][1], account_password])
-			p session[:id]
 			session[:login] = true 
 			session[:user] = accounts
 			redirect("/users/#{session[:id][0][0]}")
@@ -69,7 +68,11 @@ class App < Sinatra::Base
 	end
 
 	post '/add-friend' do
-
+		db = SQLite3::Database.new('./db/database.sqlite')
+		adding_id = db.execute("SELECT id FROM users WHERE username=?", params[:addId])
+		byebug
+		db.execute("INSERT INTO friends (user1, user2, value) VALUES(?,?,?)", [session[:id][0][0],adding_id[0][0],0])
+		redirect ('/users/'+adding_id)
 	end
 
 
