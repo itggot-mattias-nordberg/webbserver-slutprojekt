@@ -47,7 +47,7 @@ class App < Sinatra::Base
 		friend_status_1 = friend_status_alt1[0][0].to_i
 		friend_status_2 = friend_status_alt2[0][0].to_i
 
-		if friend_status_1 = nil or friend_status_2 = nil
+		if friend_status_1 == nil or friend_status_2 == nil
 		 	friend_status = nil
 		
 		elsif friend_status_1.to_i > friend_status_2.to_i 
