@@ -1,0 +1,8 @@
+p Welcome home #{username}!
+
+- invitations.each do |invitation|
+    p Pending Request From #{invitation[1]}
+    form action="/accept-friend" method="POST"
+        input type="hidden" name="user" value="#{invitation[1]}"
+        input type="hidden" name="friend" value="#{session[:id][0][0]}"
+        input type="submit" value="ACCEPT"

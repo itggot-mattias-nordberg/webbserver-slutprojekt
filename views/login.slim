@@ -1,10 +1,15 @@
-h1 Denna sidan tillhör #{user}
+h1 Denna sidan tillhör #{user[1]}
 
 h2 #{session[:id][0][1]} är inloggad! 
 
-form action="/add-friend" method="POST"
-    input type="hidden" name="addId" value="#{user}"
-    input type="submit" value="Add as friend"
+- if friend_status != 2
+    form action="/add-friend" method="POST"
+        input type="hidden" name="addId" value="#{user}"
+        input type="submit" value="Add as friend"
+
+
+- if user[0] == session[:id][0]
+    p Din sida
 
 h4 Börja Skriva!
 
